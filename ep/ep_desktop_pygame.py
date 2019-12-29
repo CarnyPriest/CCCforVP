@@ -12,6 +12,9 @@ import ctypes
 import itertools
 from procgame.events import EventManager
 import os
+import usb.core
+import usb.util
+import usb.backend.libusb1
 
 
 try:
@@ -60,10 +63,76 @@ class EP_Desktop():
         self.i = 0
         self.HD = False
 
+
+        self.dev = usb.core.find(idVendor=0x0314, idProduct=0xE457)
+
+        if self.dev is None:
+            raise ValueError('Device not found')
+
         self.add_key_map(pygame.locals.K_LSHIFT, 3)
         self.add_key_map(pygame.locals.K_RSHIFT, 1)
 
 
+
+    def Render_RGB24(self, buffer):
+        
+        gamma_table = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5,
+                 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7,
+                 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10,
+                 11, 11, 11, 11, 11, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14,
+                 14, 14, 15, 15, 15, 16, 16, 16, 16, 17, 17, 17, 18, 18, 18, 18,
+                 19, 19, 19, 20, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 23, 24,
+                 24, 24, 25, 25, 25, 26, 26, 27, 27, 27, 28, 28, 29, 29, 29, 30,
+                 30, 31, 31, 31, 32, 32, 33, 33, 34, 34, 35, 35, 35, 36, 36, 37,
+                 37, 38, 38, 39, 39, 40, 40, 41, 41, 42, 42, 43, 43, 44, 44, 45,
+                 45, 46, 47, 47, 48, 48, 49, 49, 50, 50, 51, 52, 52, 53, 53, 54,
+                 55, 55, 56, 56, 57, 58, 58, 59, 60, 60, 61, 62, 62, 63, 63, 63]
+
+        OutputPacketBuffer = [None] * 12292
+
+        OutputPacketBuffer[0] = 0x81
+        OutputPacketBuffer[1] = 0xC3
+        OutputPacketBuffer[2] = 0xE9
+        OutputPacketBuffer[3] = 18
+        pixelR,pixelG,pixelB,pixelRl,pixelGl,pixelBl = 0,0,0,0,0,0
+   
+        for i in range(0,6144,3):
+            pixelR = buffer[i]
+            pixelG = buffer[i+1]
+            pixelB = buffer[i+2]
+            # lower half of display
+            pixelRl = buffer[6144 + i]
+            pixelGl = buffer[6144 + i + 1]
+            pixelBl = buffer[6144 + i + 2]
+ 
+            #color correction
+            pixelR = gamma_table[pixelR]
+            pixelG = gamma_table[pixelG]
+            pixelB = gamma_table[pixelB]
+
+            pixelRl = gamma_table[pixelRl]
+            pixelGl = gamma_table[pixelGl]
+            pixelBl = gamma_table[pixelBl]
+
+            targetIdx = (i/3)  + 4
+           
+            for j in range(0,6,1):
+                OutputPacketBuffer[targetIdx] = ((pixelGl & 1) << 5) | ((pixelBl & 1) << 4) | ((pixelRl & 1) << 3) | ((pixelG & 1) << 2) | ((pixelB & 1) << 1) | ((pixelR & 1) << 0)
+                pixelR >>= 1
+                pixelG >>= 1
+                pixelB >>= 1
+                pixelRl >>= 1
+                pixelGl >>= 1
+                pixelBl >>= 1
+                targetIdx += 2048    
+
+        self.dev.write(0x01,OutputPacketBuffer,1000)
+                    
     def draw_window(self,pixel,xoffset=0,yoffset=0):
         self.pixel_size = pixel
         if self.pixel_size == 14:
@@ -366,6 +435,7 @@ class EP_Desktop():
         if not self.HD:
 
             frame_string = frame.get_data()
+            RGB_buffer = []
 
             x = 0
             y = 0
@@ -405,8 +475,15 @@ class EP_Desktop():
                     ##image = self.colors[color][bright_value]
                     if self.colors[color][bright_value]:
                         self.screen.blit(self.colors[color][bright_value],((x*self.pixel_size), (y*self.pixel_size)))
+
+                    RGB_value = self.convert_matrix_to_RGB(color,bright_value)
+                    RGB_buffer.extend(RGB_value)
+                    del RGB_value
+                         
                     del color
                     del bright_value
+                else:
+                    RGB_buffer.extend((0,0,0))
                 del dot
                 del dot_value
 
@@ -421,6 +498,8 @@ class EP_Desktop():
             del x
             del y
             del frame_string
+            self.Render_RGB24(RGB_buffer)
+            del RGB_buffer
 
             pygame.display.update()
 
@@ -441,3 +520,44 @@ class EP_Desktop():
     def __str__(self):
         return '<Desktop pygame>'
 
+    def convert_matrix_to_RGB(self, line = 0, col = 0):
+        Matrix_RGB = [ [[0x00, 0x00, 0x00],[0x00, 0x00, 0x00],[0x00, 0x00, 0x00],[0x00, 0x00, 0x00]], # blank
+                       
+                       [[0x00, 0x00, 0x00],[0x33, 0x33, 0x33],[0x66, 0x66, 0x66],[0xAA, 0xAA, 0xAA]], # color 1 grey                
+     
+                       [[0x00, 0x00, 0x00],[0x22, 0x22, 0x22],[0x44, 0x44, 0x44],[0x66, 0x66, 0x66]], # color 2 dark grey      
+                               
+                       [[0x00, 0x00, 0x00],[0x00, 0x22, 0x00],[0x00, 0x55, 0x00],[0x00, 0x77, 0x00]], # color 3 dark green                
+                               
+                       [[0x00, 0x00, 0x00],[0x80, 0x52, 0x46],[0xBD, 0x76, 0x67],[0xFF, 0x85, 0xA5]], # color 4 flesh tone                
+                               
+                       [[0x00, 0x00, 0x00],[0x35, 0x19, 0x50],[0x69, 0x31, 0x9E],[0x9E, 0x4A, 0xED]], # color 5 purple                
+                               
+                       [[0x00, 0x00, 0x00],[0x22, 0x00, 0x00],[0x55, 0x00, 0x00],[0x88, 0x00, 0x00]], # color 6 dark red
+                                              
+                       [[0x00, 0x00, 0x00],[0x42, 0x3b, 0x1b],[0x83, 0x75, 0x35],[0xc5, 0xb0, 0x50]], # color 7 - Brown
+                                              
+                       [[0x00, 0x00, 0x00],[0x2e, 0x24, 0x07],[0x5c, 0x47, 0x0e],[0x89, 0x6a, 0x14]], # color 8 dark brown
+                                              
+                       [[0x00, 0x00, 0x00],[0x50, 0x00, 0x00],[0xa0, 0x00, 0x00],[0xff, 0x00, 0x00]], # color 9 - Red
+                                              
+                       [[0x00, 0x00, 0x00],[0x00, 0x50, 0x00],[0x00, 0xa0, 0x00],[0x00, 0xff, 0x00]], # color 10 - Green
+                                              
+                       [[0x00, 0x00, 0x00],[0x50, 0x50, 0x00],[0xa0, 0xa0, 0x00],[0xff, 0xff, 0x00]], # color 11 - Yellow
+                                              
+                       [[0x00, 0x00, 0x00],[0x00, 0x00, 0x50],[0x00, 0x00, 0xa0],[0x00, 0x00, 0xff]], # color 12 blue
+                                              
+                       [[0x00, 0x00, 0x00],[0x50, 0x3b, 0x0e],[0x9f, 0x74, 0x1b],[0xef, 0xaf, 0x28]], # color 13 orange
+                                              
+                       [[0x00, 0x00, 0x00],[0x00, 0x50, 0x50],[0x00, 0xa0, 0xa0],[0x00, 0xff, 0xff]], # color 14 - cyan
+                                              
+                       [[0x00, 0x00, 0x00],[0x50, 0x00, 0x50],[0xa0, 0x00, 0xa0],[0xff, 0x00, 0xff]], # color 15 - magenta
+                                              
+                       [[0x00, 0x00, 0x00],[0x00, 0x00, 0x00],[0x22, 0x22, 0x22],[0x33, 0x33, 0x33], # default color - white
+                        [0x44, 0x44, 0x44],[0x55, 0x55, 0x55],[0x66, 0x66, 0x66],[0x77, 0x77, 0x77],
+                        [0x88, 0x88, 0x88],[0x99, 0x99, 0x99],[0xAA, 0xAA, 0xAA],[0xBB, 0xBB, 0xBB],
+                        [0xCC, 0xCC, 0xCC],[0xDD, 0xDD, 0xDD],[0xEE, 0xEE, 0xEE],[0xFF, 0xFF, 0xFF]]]
+
+
+        return Matrix_RGB[line][col]
+    
