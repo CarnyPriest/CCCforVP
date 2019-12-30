@@ -102,6 +102,8 @@ class EP_Desktop():
         pixelR,pixelG,pixelB,pixelRl,pixelGl,pixelBl = 0,0,0,0,0,0
    
         for i in range(0,6144,3):
+ 
+        #use these mappings for RGB panels
             pixelR = buffer[i]
             pixelG = buffer[i+1]
             pixelB = buffer[i+2]
@@ -110,6 +112,15 @@ class EP_Desktop():
             pixelGl = buffer[6144 + i + 1]
             pixelBl = buffer[6144 + i + 2]
  
+        #use these mappings for RBG panels
+            #pixelR = buffer[i]
+            #pixelG = buffer[i+2]
+            #pixelB = buffer[i+1]
+            # lower half of display
+            #pixelRl = buffer[6144 + i]
+            #pixelGl = buffer[6144 + i + 2]
+            #pixelBl = buffer[6144 + i + 1]
+
             #color correction
             pixelR = gamma_table[pixelR]
             pixelG = gamma_table[pixelG]
@@ -427,6 +438,8 @@ class EP_Desktop():
         SetWindowPos(pygame.display.get_wm_info()['window'], -1, self.xOffset, self.yOffset, 0, 0, 0x0001)
         pygame.mouse.set_visible(False)
         pygame.display.set_caption('Cactus Canyon Continued')
+	#hide the display from the desktop
+        pygame.display.iconify()
 
     def draw(self, frame):
         """Draw the given :class:`~procgame.dmd.Frame` in the window."""
@@ -444,6 +457,7 @@ class EP_Desktop():
 
             for dot in frame_string:
                 dot_value = ord(dot)
+                RGB_value = (0,0,0)
                 image = None
                 # if we got something other than 0
                 if dot_value != 0:
@@ -473,17 +487,16 @@ class EP_Desktop():
                     ##print "Dot Value: " + str(derp) +" - color: " + str(color) + " - Brightness: " +str(brightness)
                     # set the image based on color and brightness
                     ##image = self.colors[color][bright_value]
+ 
                     if self.colors[color][bright_value]:
                         self.screen.blit(self.colors[color][bright_value],((x*self.pixel_size), (y*self.pixel_size)))
-
-                    RGB_value = self.convert_matrix_to_RGB(color,bright_value)
-                    RGB_buffer.extend(RGB_value)
-                    del RGB_value
+                        RGB_value = self.colors[color][bright_value].get_at((2,2))
                          
                     del color
                     del bright_value
-                else:
-                    RGB_buffer.extend((0,0,0))
+
+                RGB_buffer.extend((RGB_value[0],RGB_value[1],RGB_value[2]))
+                del RGB_value
                 del dot
                 del dot_value
 
@@ -520,44 +533,3 @@ class EP_Desktop():
     def __str__(self):
         return '<Desktop pygame>'
 
-    def convert_matrix_to_RGB(self, line = 0, col = 0):
-        Matrix_RGB = [ [[0x00, 0x00, 0x00],[0x00, 0x00, 0x00],[0x00, 0x00, 0x00],[0x00, 0x00, 0x00]], # blank
-                       
-                       [[0x00, 0x00, 0x00],[0x33, 0x33, 0x33],[0x66, 0x66, 0x66],[0xAA, 0xAA, 0xAA]], # color 1 grey                
-     
-                       [[0x00, 0x00, 0x00],[0x22, 0x22, 0x22],[0x44, 0x44, 0x44],[0x66, 0x66, 0x66]], # color 2 dark grey      
-                               
-                       [[0x00, 0x00, 0x00],[0x00, 0x22, 0x00],[0x00, 0x55, 0x00],[0x00, 0x77, 0x00]], # color 3 dark green                
-                               
-                       [[0x00, 0x00, 0x00],[0x80, 0x52, 0x46],[0xBD, 0x76, 0x67],[0xFF, 0x85, 0xA5]], # color 4 flesh tone                
-                               
-                       [[0x00, 0x00, 0x00],[0x35, 0x19, 0x50],[0x69, 0x31, 0x9E],[0x9E, 0x4A, 0xED]], # color 5 purple                
-                               
-                       [[0x00, 0x00, 0x00],[0x22, 0x00, 0x00],[0x55, 0x00, 0x00],[0x88, 0x00, 0x00]], # color 6 dark red
-                                              
-                       [[0x00, 0x00, 0x00],[0x42, 0x3b, 0x1b],[0x83, 0x75, 0x35],[0xc5, 0xb0, 0x50]], # color 7 - Brown
-                                              
-                       [[0x00, 0x00, 0x00],[0x2e, 0x24, 0x07],[0x5c, 0x47, 0x0e],[0x89, 0x6a, 0x14]], # color 8 dark brown
-                                              
-                       [[0x00, 0x00, 0x00],[0x50, 0x00, 0x00],[0xa0, 0x00, 0x00],[0xff, 0x00, 0x00]], # color 9 - Red
-                                              
-                       [[0x00, 0x00, 0x00],[0x00, 0x50, 0x00],[0x00, 0xa0, 0x00],[0x00, 0xff, 0x00]], # color 10 - Green
-                                              
-                       [[0x00, 0x00, 0x00],[0x50, 0x50, 0x00],[0xa0, 0xa0, 0x00],[0xff, 0xff, 0x00]], # color 11 - Yellow
-                                              
-                       [[0x00, 0x00, 0x00],[0x00, 0x00, 0x50],[0x00, 0x00, 0xa0],[0x00, 0x00, 0xff]], # color 12 blue
-                                              
-                       [[0x00, 0x00, 0x00],[0x50, 0x3b, 0x0e],[0x9f, 0x74, 0x1b],[0xef, 0xaf, 0x28]], # color 13 orange
-                                              
-                       [[0x00, 0x00, 0x00],[0x00, 0x50, 0x50],[0x00, 0xa0, 0xa0],[0x00, 0xff, 0xff]], # color 14 - cyan
-                                              
-                       [[0x00, 0x00, 0x00],[0x50, 0x00, 0x50],[0xa0, 0x00, 0xa0],[0xff, 0x00, 0xff]], # color 15 - magenta
-                                              
-                       [[0x00, 0x00, 0x00],[0x00, 0x00, 0x00],[0x22, 0x22, 0x22],[0x33, 0x33, 0x33], # default color - white
-                        [0x44, 0x44, 0x44],[0x55, 0x55, 0x55],[0x66, 0x66, 0x66],[0x77, 0x77, 0x77],
-                        [0x88, 0x88, 0x88],[0x99, 0x99, 0x99],[0xAA, 0xAA, 0xAA],[0xBB, 0xBB, 0xBB],
-                        [0xCC, 0xCC, 0xCC],[0xDD, 0xDD, 0xDD],[0xEE, 0xEE, 0xEE],[0xFF, 0xFF, 0xFF]]]
-
-
-        return Matrix_RGB[line][col]
-    
