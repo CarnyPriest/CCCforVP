@@ -242,13 +242,13 @@ class Trough(ep.EP_Mode):
             # go to a hold pattern to wait for the shooter lane
             # if after 2 seconds the shooter lane hasn't been hit
             # and the eject switch hasn't triggered, we'll assume the launch worked
-            if not self.game.fakePinProc:
+            #if not self.game.fakePinProc:
                 #print "Trough - scheduling the Bounce_Delay"
-                self.delay("Bounce_Delay",delay=3,handler=self.finish_launch)
+            self.delay("Bounce_Delay",delay=3,handler=self.finish_launch)
             # if we are under fakepinproc, proceed immediately to ball in play
-            else:
+            #else:
                 #print "Fakepinproc - Finishing Launch"
-                self.finish_launch()
+                #self.finish_launch()
 
         # Otherwise, wait 1 second before trying again.
         else:
