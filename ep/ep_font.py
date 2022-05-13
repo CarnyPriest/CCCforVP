@@ -68,7 +68,7 @@ class ColorFont(object):
 
     def make_colors(self,colors):
         for c in colors:
-            ##print "Making " + str(c)
+            #print "Making " + str(c)
             frame = Frame(self.__anim.width,self.__anim.height)
             for y in range(self.__anim.height):
                 for x in range(self.__anim.width):
@@ -139,7 +139,7 @@ class ColorFont(object):
         x = 0
         y = 0
 
-        # #print "Size: %d x %d" % (text_height)
+        # print "Size: %d x %d" % (text_height)
 
         if anchor & AnchorN:
             y = origin_y

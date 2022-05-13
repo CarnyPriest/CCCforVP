@@ -105,7 +105,7 @@ class Mine(ep.EP_Mode):
 
     def mine_shot(self):
         stackLevel = self.game.show_tracking('stackLevel')
-        # print stackLevel
+        #print stackLevel
 
         # if cva is ready, we do that - as long as no mode above guns is running
         if self.game.show_tracking('cvaStatus') == "READY" and True not in stackLevel[1:] and not self.game.bart.bossFight:
@@ -179,7 +179,7 @@ class Mine(ep.EP_Mode):
 
     def mine_update(self,hitStatus):
         # award some points ?
-        # print str(hitStatus) + " shots left to light lock"
+        #print str(hitStatus) + " shots left to light lock"
         # display a "shots left to light lock type thing
         textLine = str(hitStatus) + " MORE TO"
         textLine2 = "LIGHT LOCK"

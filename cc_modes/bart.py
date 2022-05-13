@@ -282,7 +282,7 @@ class Bart(ep.EP_Mode):
             defeated = 5
         self.hitsThisBart = self.hitsToDefeatBart[defeated]
         # set up the name line for the cards
-        # print self.brother + " IS THE BROTHER"
+        #print self.brother + " IS THE BROTHER"
         if self.brother != "BANDELERO" and self.brother != "RUDY":
             self.nameLine = self.brother.upper() + " BART"
         else:

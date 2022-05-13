@@ -364,10 +364,10 @@ class Moonlight(ep.EP_Mode):
                 #print "Enabled Shot: " + str(shot)
                 self.availableShots.remove(shot)
                 #print "Available: "
-                # print self.availableShots
+                #print self.availableShots
                 self.liveShots.append(shot)
                 #print "Live:"
-                # print self.liveShots
+                #print self.liveShots
                 # tick off the enabled shot - try to stay above zero
                 if self.enable > 0:
                     self.enable -= 1

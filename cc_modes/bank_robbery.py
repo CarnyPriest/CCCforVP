@@ -590,7 +590,7 @@ class BankRobbery(ep.EP_Mode):
         if self.isActive[1]: dudes.append(1)
         if self.isActive[2]: dudes.append(2)
         #print "DUDES:"
-        # print dudes
+        #print dudes
         # pick a random guy to shoot
         self.shooter = random.choice(dudes)
         #print "THE SHOOTER IS: " + str(self.shooter)

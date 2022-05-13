@@ -410,7 +410,6 @@ class BionicBart(ep.EP_Mode):
         self.delay(name="Display",delay=1.5,handler=self.update_display)
         self.delay(delay=1.5,handler=self.game.restore_music)
 
-
     def hit(self,step=1):
         #print "Hitting bionic bart"
         if step == 1:

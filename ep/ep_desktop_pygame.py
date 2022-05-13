@@ -54,18 +54,18 @@ class EP_Desktop():
 
     key_map = {}
 
-    def __init__(self):
+    def __init__(self, windowless=False):
         #print "Init Color Desktop"
         self.ctrl = 0
         self.i = 0
         self.HD = False
-
+        self.windowless = windowless
         self.add_key_map(pygame.locals.K_LSHIFT, 3)
         self.add_key_map(pygame.locals.K_RSHIFT, 1)
 
-
     def draw_window(self,pixel,xoffset=0,yoffset=0):
         self.pixel_size = pixel
+        self.y_setting = yoffset
         if self.pixel_size == 14:
             self.xOffset = 64 + xoffset
             self.yOffset = 376 + yoffset
@@ -352,10 +352,14 @@ class EP_Desktop():
     def setup_window(self):
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (self.xOffset,self.yOffset)
         pygame.init()
-                    
-        SetWindowPos = ctypes.windll.user32.SetWindowPos
-        self.screen = pygame.display.set_mode(((self.pixel_size*128),(self.pixel_size*32)),pygame.NOFRAME)        
-        SetWindowPos(pygame.display.get_wm_info()['window'], -1, self.xOffset, self.yOffset, 0, 0, 0x0001)
+        #print "Making window - " + str(self.pixel_size*128) + " by " + str(self.pixel_size*32) + " offsets " + str(self.xOffset) + "," + str(self.yOffset)
+        if self.windowless:
+            self.screen = pygame.display.set_mode((1280, 720), pygame.NOFRAME)
+            self.screen.fill((0, 0, 0))
+            self.dmd_display = self.screen.subsurface(pygame.Rect(0, abs(self.y_setting), 1280, (abs(self.y_setting) + 320)))
+        else:
+            self.screen = pygame.display.set_mode(((self.pixel_size*128), (self.pixel_size*32)),pygame.NOFRAME)
+            self.dmd_display = self.screen
         pygame.mouse.set_visible(False)
         pygame.display.set_caption('Cactus Canyon Continued')
 
@@ -371,7 +375,7 @@ class EP_Desktop():
             y = 0
             flipy = 0
             # fill the screen black
-            self.screen.fill((0,0,0))
+            self.dmd_display.fill((0,0,0))
 
             for dot in frame_string:
                 dot_value = ord(dot)
@@ -402,11 +406,11 @@ class EP_Desktop():
                             del brightness
                         color = (dot_value >> 4)
 
-                    ##print "Dot Value: " + str(derp) +" - color: " + str(color) + " - Brightness: " +str(brightness)
+                    #print "Dot Value: " + str(derp) +" - color: " + str(color) + " - Brightness: " +str(brightness)
                     # set the image based on color and brightness
                     ##image = self.colors[color][bright_value]
                     if self.colors[color][bright_value]:
-                        self.screen.blit(self.colors[color][bright_value],((x*self.pixel_size), (flipy*self.pixel_size)))
+                        self.dmd_display.blit(self.colors[color][bright_value],((x*self.pixel_size), (flipy*self.pixel_size)))
                     del color
                     del bright_value
                 del dot
