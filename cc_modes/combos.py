@@ -122,7 +122,7 @@ class Combos(ep.EP_Mode):
         # tick down the timer
         self.myTimer -= 1
         # see if it hit zero
-        ##print "COMBO TIMER: " + str(self.myTimer)
+        #print "COMBO TIMER: " + str(self.myTimer)
         if self.myTimer <= 0:
             self.end()
         else:
@@ -136,13 +136,13 @@ class Combos(ep.EP_Mode):
         # set the chain back to one
         self.chain = 1
         ep.last_shot = "none"
-        ##print "Combos have ENDED"
+        #print "Combos have ENDED"
     
     def start(self):
         # due to the multi ramp combos, this has to be able to add combos
         if self.chain > 1:
             self.add_combo()
-        ##print "Combos are ON"
+        #print "Combos are ON"
         # set the timer at the max settings from the game
         self.myTimer = self.default
         # turn the lights on

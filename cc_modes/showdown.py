@@ -52,7 +52,7 @@ class Showdown(ep.EP_Mode):
 
     def mode_stopped(self):
         self.running = False
-        print "SHOWDOWN IS DISPATCHING DELAYS"
+        #print "SHOWDOWN IS DISPATCHING DELAYS"
         self.wipe_delays()
         self.clear_layer()
 

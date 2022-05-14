@@ -179,7 +179,7 @@ class Match(ep.EP_Mode):
                 # and tick the winner count to true
                 self.winners += 1
                 # store a list of winning players
-                # print ("Player " + str(i) + " gets last call")
+                #print ("Player " + str(i) + " gets last call")
                 # check to make sure they're not in last call already
                 if i not in self.lastCall:
                     self.lastCall.append(i)

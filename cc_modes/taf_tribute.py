@@ -241,7 +241,7 @@ class TAF_Tribute(ep.EP_Mode):
 
     def time_it(self):
         self.modeTimer -= 1
-        ##print "TAF MODE TIME: " + str(self.modeTimer)
+        #print "TAF MODE TIME: " + str(self.modeTimer)
         if self.modeTimer < 0:
             self.finish_it()
         else:

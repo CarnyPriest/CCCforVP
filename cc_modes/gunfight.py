@@ -161,11 +161,11 @@ class Gunfight(ep.EP_Mode):
         #print "ENEMY: " + str(enemy)
         # save the final target
         self.enemy = enemy
-        # print badGuys
+        #print badGuys
         badGuys.remove(enemy)
         # and tag them on the end
         badGuys.append(enemy)
-        # print badGuys
+        #print badGuys
         # stop the music
         # only kill the music if there's not a higher level running
         self.stop_music(slice=1)

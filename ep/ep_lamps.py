@@ -166,11 +166,11 @@ class EP_LampShowTrack(object):
                 ignore_first = False
         # FIXME: This lops off the last up to 31 bits of track data!
         # Print out all of the data for debugging purposes:
-        # #print "Loaded %d schedules for %s:" % (len(self.schedules), self.name)
+        # print "Loaded %d schedules for %s:" % (len(self.schedules), self.name)
         # for sch in self.schedules:
-        # 	#print " - % 8x" % (sch)
-        # #print "%s | %s" % (self.name, m.group('data'))
-        # #print "%s | %s" % (self.name, data)
+        # 	print " - % 8x" % (sch)
+        # print "%s | %s" % (self.name, m.group('data'))
+        # print "%s | %s" % (self.name, data)
 
     def resolve_driver_with_game(self, game):
         if self.name.startswith('coil:'):

@@ -114,13 +114,13 @@ class InitialEntryMode(game.Mode):
             frame = dmd.Frame(width=128, height=10)
             for offset in range(-7, 8):
                 index = new_index - offset
-                ##print "Index %d  len=%d" % (index, len(self.letters))
+                #print "Index %d  len=%d" % (index, len(self.letters))
                 if index < 0:
                     index = len(self.letters) + index
                 elif index >= len(self.letters):
                     index = index - len(self.letters)
                 (w, h) = self.font.size(self.letters[index])
-                ##print "Drawing %d w=%d" % (index, w)
+                #print "Drawing %d w=%d" % (index, w)
                 self.letters_font.draw(frame, self.letters[index], 128/2 - offset * letter_spread - letter_width/2 + x, 0,color=ep.CYAN)
             frame.fill_rect(64-5, 0, 1, 10, 10)
             frame.fill_rect(64+5, 0, 1, 10, 10)

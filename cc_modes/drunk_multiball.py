@@ -308,7 +308,7 @@ class DrunkMultiball(ep.EP_Mode):
         # take it out of the available and make it active
         self.availableJackpots.remove(thisOne)
         self.active.append(thisOne)
-        # print self.active
+        #print self.active
         # and update the lamps
         self.lamp_update()
 

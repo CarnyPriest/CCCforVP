@@ -147,7 +147,7 @@ class EP_TextLayer(dmd.Layer):
 
     def draw_font(self, frame, text, x, y,color=0):
         """Uses this font's characters to draw the given string at the given position."""
-        ##print "Draw font color " + str(color)
+        #print "Draw font color " + str(color)
         for ch in text:
             char_offset = ord(ch) - ord(' ')
             if char_offset < 0 or char_offset >= 96:

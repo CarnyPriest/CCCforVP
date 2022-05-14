@@ -398,7 +398,7 @@ class Ambush(ep.EP_Mode):
             self.game.score(self.showdownValue)
             # increase the running total by that amount
             self.game.increase_tracking('ambushPoints',self.showdownValue)
-            # print self.game.show_tracking('ambushPoints')
+            #print self.game.show_tracking('ambushPoints')
             # flash the guns with a hit
             self.game.base.guns_flash(1)
             # move target from active to available
